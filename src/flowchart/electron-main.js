@@ -1,4 +1,4 @@
-const {app,BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -17,11 +17,15 @@ app.on('window-all-closed', function() {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   // Create the browser window.
-
   mainWindow = new BrowserWindow({
-      width: 1000,
-      height: 1000,
-      show: false
+    width: 1000,
+    height: 1000,
+    show: false,
+    // https://stackoverflow.com/questions/44391448/electron-require-is-not-defined
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
   });
 
   // and load the index.html of the app.
@@ -32,16 +36,16 @@ app.on('ready', function() {
 
   const ipcMain = require('electron').ipcMain;
   mainWindow.webContents.on('did-finish-load', function() {
-     // Tell the BrowserWindow to generate our SVG for us
-     mainWindow.webContents.send('flowchart-render-start', {
-         inputPath: process.argv[2],
-         outputPath: process.argv[3]
-     });
+    // Tell the BrowserWindow to generate our SVG for us
+    mainWindow.webContents.send('flowchart-render-start', {
+      inputPath: process.argv[2],
+      outputPath: process.argv[3]
+    });
 
-     // Listen for when the browserwindow has finished or failed
-     ipcMain.on('flowchart-render-finished', function(){
-         app.quit();
-     });
+    // Listen for when the browserwindow has finished or failed
+    ipcMain.on('flowchart-render-finished', function() {
+      app.quit();
+    });
   });
 
   // Emitted when the window is closed.
